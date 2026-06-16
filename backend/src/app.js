@@ -1,5 +1,6 @@
 import express from "express"
 import dotenv from "dotenv"
+import cors from "cors"
 
 dotenv.config(); //se puede rellenar con el nombre del .env por ejemplo (".env.db")
 
@@ -7,10 +8,20 @@ const NAME=process.env.SERVER_NAME;
 const VERSION=process.env.SERVER_VERSION;
 const DESCRIPTION=process.env.SERVER_DESCRIPTION;
 const PORT=process.env.SERVER_PORT;
-const app = express();
+
+
+ const app = express();
+
+app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send(`<h1>Nombre del server: ${NAME}</h1><p>${DESCRIPTION}</p><p>Escuchando en el puerto: ${PORT}</p><p>Version: ${VERSION}</p>`);
+  res.json({
+    name: NAME,
+    version: VERSION,
+    description: DESCRIPTION,
+    port: PORT
+  });
 });
 
 app.listen(PORT, () => {
