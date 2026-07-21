@@ -6,8 +6,14 @@ import {
     buscarUsuario,
     eliminarUsuario,
     cambiarContrasena,
-    autenticar
+    autenticar,
+    obtenerUsuarioAutenticado,
+    cerrarSesionCookie
  } from "../controllers/usuario.controller.js";
+
+ import{
+    autenticarCookie
+ }from "../middlewares/autenticarcookie.js"
 
 const router = Router();
 
@@ -16,7 +22,10 @@ router.get('/:id',buscarUsuario);
 router.post('/',agregarUsuario);
 router.delete('/:id',eliminarUsuario);
 router.patch('/',cambiarContrasena);
+
 router.post('/autenticar',autenticar);
+router.get('/auteticado',autenticarCookie,obtenerUsuarioAutenticado);
+router.post('/cerrar-sesion',cerrarSesionCookie)
 
 
 export default router;

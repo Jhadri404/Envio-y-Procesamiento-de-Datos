@@ -171,7 +171,7 @@ export async function autenticar(req, res) {
     const {correo, contrasena} =req.body;
 
     const [result] = await pool.execute(
-      `select correo,contrasena from usuarios where correo=?`
+      `select id,nombre,correo,contrasena from usuarios where correo=?`
       ,
       [correo]
     );
@@ -179,6 +179,27 @@ export async function autenticar(req, res) {
     if(result.length===0 ||
       !await bcrypt.compare(contrasena,result[0].contrasena))
       return res.status(404).json({ mensaje: "Correo y/o contraseña incorrectos" })
+
+    const usuario = {
+      id: result[0].id,
+      nombre: result[0].nombre,
+      correo: result[0].correo
+    };
+
+    const datosCookie = JSON.stringify({
+      id: result[0].id,
+      nombre: result[0].nombre,
+      correo: result[0].correo
+    });
+
+    res.cookie("usuarioAutenticado", datosCookie, {
+      signed: true,
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1 * 60 * 1000,
+      path: "/"
+    });
 
     return res.json(
       { 
@@ -193,4 +214,26 @@ export async function autenticar(req, res) {
       error: error.sqlMessage
     });
   }
+
+  
+}
+
+export function obtenerUsuarioAutenticado(req, res) {
+  return res.json({
+    usuario: req.usuario,
+    mensaje: "Usuario autenticado mediante cookie"
+  });
+}
+
+export function cerrarSesionCookie(req, res) {
+  res.clearCookie("usuarioAutenticado", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/"
+  });
+
+  return res.json({
+    mensaje: "Sesión cerrada y cookie eliminada"
+  });
 }
