@@ -1,25 +1,17 @@
 {
-  "name": "envio-y-procesamiento-de-datos",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Jhadri404/Envio-y-Procesamiento-de-Datos.git"
+    "dev": "nodemon src/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Jhadri404/Envio-y-Procesamiento-de-Datos/issues"
-  },
-  "homepage": "https://github.com/Jhadri404/Envio-y-Procesamiento-de-Datos#readme",
+  "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
