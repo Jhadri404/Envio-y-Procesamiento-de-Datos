@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from "cookie-parser";
+import session from "express-session";
 
 import parqueoRoutes from "./routes/parqueo.routes.js";
 import usuarioRoutes from "./routes/usuario.routes.js";
@@ -12,6 +13,7 @@ const VERSION=process.env.SERVER_VERSION;
 const DESCRIPTION=process.env.SERVER_DESCRIPTION;
 const PORT=process.env.SERVER_PORT;
 const COOKIE_SECRET=process.env.COOKIE_SECRET
+const SESSION_SECRET=process.env.SESSION_SECRET;
 
 const app = express();
 
@@ -23,6 +25,22 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser(COOKIE_SECRET));
+
+app.use(
+  session({
+    name: "parqueo.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    rolling: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1 * 60 * 1000
+    }
+  })
+);
 
 app.get('/', (req, res) => {
   res.json({

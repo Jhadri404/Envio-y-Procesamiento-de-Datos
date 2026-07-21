@@ -186,36 +186,115 @@ export async function autenticar(req, res) {
       correo: result[0].correo
     };
 
-    const datosCookie = JSON.stringify({
-      id: result[0].id,
-      nombre: result[0].nombre,
-      correo: result[0].correo
-    });
+    req.session.regenerate((error) => {
+      if (error) {
+        console.error(error);
 
-    res.cookie("usuarioAutenticado", datosCookie, {
-      signed: true,
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 1 * 60 * 1000,
-      path: "/"
-    });
-
-    return res.json(
-      { 
-        correo:correo,
-        mensaje: "Acceso autorizado" 
+        return res.status(500).json({
+          mensaje: "No fue posible crear la sesión"
+        });
       }
-    );
 
+      req.session.usuario = {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        correo: usuario.correo
+      };
+
+      req.session.inicio = new Date().toISOString();
+      req.session.visitas = 0;
+
+      //guardar la sesión y enviar la respuesta
+      req.session.save((error) => {
+        if (error) {
+          console.error(error);
+
+          return res.status(500).json({
+            mensaje: "No fue posible guardar la sesión"
+          });
+        }
+
+
+        return res.json({
+          usuario: req.session.usuario,
+          mensaje: "Acceso autorizado"
+        });
+
+      });
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       error: error.sqlMessage
     });
   }
+  //   const datosCookie = JSON.stringify({
+  //     id: result[0].id,
+  //     nombre: result[0].nombre,
+  //     correo: result[0].correo
+  //   });
 
-  
+  export function obtenerSesion(req, res) {
+  req.session.visitas = (req.session.visitas || 0) + 1;
+
+  return res.json({
+    usuario: req.session.usuario,
+    inicio: req.session.inicio,
+    visitas: req.session.visitas,
+    expiraEn: req.session.cookie.maxAge,
+    mensaje: "Sesión activa"
+  });
+}
+
+  //   res.cookie("usuarioAutenticado", datosCookie, {
+  //     signed: true,
+  //     httpOnly: true,
+  //     secure: false,
+  //     sameSite: "lax",
+  //     maxAge: 1 * 60 * 1000,
+  //     path: "/"
+  //   });
+
+  // // return res.json(
+  // //   { 
+  // //     correo:correo,
+  // //     mensaje: "Acceso autorizado" 
+  // //   }
+  // // );
+}
+
+export function cerrarSesion(req, res) {
+if(!req.session){
+  return res.status(200).json({
+    mensaje: "no existe una sesion activa"
+  });
+}
+
+req.session.destroy((error)=> {
+  if(error){
+    console.error(error);
+
+    return res.status(500).json({
+      mensaje:"No fue posible cerrar la sesion"
+    })
+  }
+});
+
+res.session.destroy((error)=> {
+  res.clearCookie("parqueo.sid",{
+    httpOnly: true,
+    secure: false,
+    sameSite:"lax",
+    path:"/"
+  })
+  });
+
+   res.clearCookie("parqueo.sid", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/"
+  }); 
 }
 
 export function obtenerUsuarioAutenticado(req, res) {
